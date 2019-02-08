@@ -1,0 +1,114 @@
+{
+  "builders": [{
+    "name": "vyos-ovf",
+    "type": "virtualbox-iso",
+    "iso_url": "{{user `mirror`}}/iso/release/1.1.8/vyos-1.1.8-amd64.iso",
+    "iso_checksum": "{{user `iso_checksum`}}",
+    "iso_checksum_type": "{{user `iso_checksum_type`}}",
+    "output_directory": "output-ovf",
+    "vm_name": "vyos-ovf",
+    "disk_size": "{{user `disk_size`}}",
+    "guest_os_type": "Ubuntu_64",
+    "format": "ovf",
+    "headless": "{{user `headless`}}",
+    "boot_wait": "5s",
+    "boot_command": [
+      "<enter><wait10><wait10>",
+      "vyos<enter><wait>",
+      "vyos<enter><wait>",
+      "install system<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "Yes<enter><wait>",
+      "<enter><wait10><wait10><wait10><wait10><wait10>",
+      "<enter><wait>",
+      "vyos<enter><wait>",
+      "vyos<enter><wait>",
+      "<enter><wait5>",
+      "reboot<enter><wait>",
+      "Yes<enter><wait10><wait10><wait10><wait10>",
+      "vyos<enter><wait>",
+      "vyos<enter><wait>",
+      "configure<enter><wait>",
+      "set interfaces ethernet eth0 address dhcp<enter><wait>",
+      "set system login user vyos authentication plaintext-password vyos<enter><wait>",
+      "set system login user vyos level admin<enter><wait>",
+      "set service ssh<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>",
+      "exit<enter><wait5>",
+      "vyos<enter><wait>",
+      "vyos<enter><wait>",
+      "configure<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>"
+    ],
+    "ssh_timeout": "{{user `ssh_timeout`}}",
+    "ssh_username": "vyos",
+    "ssh_password": "vyos",
+    "ssh_port": 22,
+    "shutdown_command": "sudo poweroff",
+    "vboxmanage": [
+      [
+        "modifyvm",
+        "{{.Name}}",
+        "--memory",
+        "{{user `memory`}}"
+      ],
+      [
+        "modifyvm",
+        "{{.Name}}",
+        "--cpus",
+        "{{user `cpus`}}"
+      ],
+      [
+        "modifyvm",
+        "{{.Name}}",
+        "--nic2",
+        "intnet"
+      ],
+      [
+        "modifyvm",
+        "{{.Name}}",
+        "--nic3",
+        "intnet"
+      ],
+      [
+        "modifyvm",
+        "{{.Name}}",
+        "--nic4",
+        "intnet"
+      ]
+    ]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "scripts": [
+      "scripts/vyos/repo.sh",
+      "scripts/vyos/init.sh",
+      "scripts/vyos/cloudinit.sh",
+      "scripts/vyos/sshd.sh",
+      "scripts/vyos/confpermissions.sh",
+      "scripts/vyos/cleanup.sh",
+      "scripts/vyos/minimize.sh"
+    ],
+    "environment_vars": [
+      "vagrant_user={{user `vagrant_user`}}"
+    ]
+  }],
+  "variables": {
+    "compression_level": "6",
+    "cpus": "1",
+    "disk_size": "8000",
+    "headless": "true",
+    "iso_checksum": "ff4c8e1822e653d8d85f4a90f30c6d2ac047514c",
+    "iso_checksum_type": "sha1",
+    "memory": "512",
+    "mirror": "http://mirror.vyos.net",
+    "ssh_timeout": "60m",
+    "vagrant_user": "0"
+  }
+}
